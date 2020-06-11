@@ -22,7 +22,7 @@ class Scraping
     title = page.at('.entry-title').inner_text
     image_url = page.at('.entry-content img')[:src] if page.at('.entry-content img')
 
-    product = Product.new(title: title, image_url: image_url)
+    product = Product.where(title: title, image_url: image_url).first_or_initialize
     product.save
 
     #各個別ページでのスクレイピング処理
