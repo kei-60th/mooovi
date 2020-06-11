@@ -1,11 +1,30 @@
 class Scraping
   def self.movie_urls
-    puts 'get movies link URL'
-    # ここに処理を書く
+    links = []
+    agent = Mechanize.new
+    current_page = agent.get("http://review-movie.herokuapp.com/")
+    elements = current_page.search('.entry-title a')
+    elements.each do |ele|
+      links << ele.get_attribute('href')
+    end
+
+    #movie_urlsメソッドではまず、20件分の映画の個別ページのリンクを取得する
+
+    links.each do |link|
+      get_product('http://review-movie.herokuapp.com/' + link)
+      #取得したリンクURLにMovieReviewを結合して、get_productメソッドに引数として渡す
+    end
   end
 
   def self.get_product(link)
-    puts 'get movie information'
-    # ここに処理を書く
+    agent = Mechanize.new
+    page = agent.get(link)
+    title = page.at('.entry-title').inner_text
+    image_url = page.at('.entry-content img')[:src] if page.at('.entry-content img')
+
+    product = Product.new(title: title, image_url: image_url)
+    product.save
+
+    #各個別ページでのスクレイピング処理
   end
 end
